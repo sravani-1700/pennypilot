@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PennyPilot</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            font-family: "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #f3eaff, #e5fff3, #fff0e8);
+            color: #493b60;
+        }
+
+        .card {
+            margin: 20px;
+            padding: 45px 30px;
+            max-width: 500px;
+            text-align: center;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 12px 35px #8d7aaa25;
+        }
+
+        h1 { color: #9274c8; }
+
+        p { line-height: 1.7; }
+
+        .account-link {
+            display: inline-block;
+            margin: 8px;
+            padding: 12px 22px;
+            border-radius: 14px;
+            background: #9274c8;
+            color: white;
+            text-decoration: none;
+        }
+
+        .account-link:hover {
+            background: #8060b5;
+        }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <h1>🌷 Welcome to PennyPilot!</h1>
+        <p>Your money, your way.</p>
+        <p>Your personal expense tracker journey starts here. 💜</p>
+
+        <p>
+            <a class="account-link" href="{{ url_for('login') }}">
+                Sign in 💜
+            </a>
+        </p>
+
+        <p>
+            <a class="account-link" href="{{ url_for('register') }}">
+                Create your account 🌷
+            </a>
+        </p>
+    </main>
+</body>
+</html>

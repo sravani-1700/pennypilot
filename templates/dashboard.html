@@ -1,0 +1,1463 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f0ff">
+    <title>PennyPilot | Your money, your way.</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --purple: #8c70c5;
+            --purple-dark: #7054a8;
+            --lavender: #f0e9ff;
+            --mint: #e6f7ed;
+            --peach: #fff0e6;
+            --pink: #ffedf4;
+            --ink: #413750;
+            --muted: #82788f;
+            --line: #eee7f5;
+            --white: #fff;
+        }
+
+        * { box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 22px;
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+            color: var(--ink);
+            background: #faf8fd;
+        }
+
+        button, input, select { font: inherit; }
+        button { cursor: pointer; }
+        a { -webkit-tap-highlight-color: transparent; }
+
+        .sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            width: 248px;
+            height: 100vh;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            padding: 25px 18px;
+            background: white;
+            border-right: 1px solid var(--line);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 10px;
+            margin-bottom: 10px;
+        }
+
+        .brand-icon {
+            width: 43px;
+            height: 43px;
+            display: grid;
+            place-items: center;
+            background: var(--lavender);
+            border-radius: 15px;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 22px;
+            letter-spacing: -.7px;
+        }
+
+        .tagline {
+            padding: 0 10px;
+            margin: 0 0 30px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .nav-label {
+            padding: 0 12px;
+            color: #a29aaa;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            margin: 0 0 10px;
+        }
+
+        .nav { display: grid; gap: 7px; }
+
+        .nav a {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 12px 13px;
+            border-radius: 13px;
+            color: #746980;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background .2s, color .2s;
+        }
+
+        .nav a:hover, .nav a.active {
+            background: var(--lavender);
+            color: var(--purple-dark);
+        }
+
+        .nav-icon {
+            width: 22px;
+            text-align: center;
+            font-size: 17px;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding-top: 20px;
+        }
+
+        .sidebar-note {
+            background: linear-gradient(140deg, #f0e8ff, #e9fbf0);
+            padding: 17px;
+            border-radius: 18px;
+            margin: 0 2px 14px;
+        }
+
+        .sidebar-note strong {
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .sidebar-note p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .logout-form { margin: 0; }
+
+        .logout-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            text-align: left;
+            background: #fff5f7;
+            color: #8b4f69;
+            padding: 13px 14px;
+            border-radius: 12px;
+            border: 1px solid #f5dce5;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .logout-button:hover { background: var(--pink); }
+
+        .main {
+            margin-left: 248px;
+            padding: 30px clamp(18px, 3vw, 44px) 45px;
+            max-width: 1700px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .eyebrow {
+            color: var(--purple-dark);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            margin: 0 0 8px;
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: clamp(25px, 3vw, 33px);
+            letter-spacing: -1.1px;
+        }
+
+        .welcome {
+            margin: 8px 0 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            background: white;
+            padding: 10px 15px 10px 10px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+        }
+
+        .avatar {
+            width: 39px;
+            height: 39px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: var(--lavender);
+            font-weight: 800;
+            color: var(--purple-dark);
+        }
+
+        .profile strong { font-size: 13px; }
+        .profile small {
+            display: block;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        .messages {
+            border-radius: 13px;
+            padding: 13px 16px;
+            margin-bottom: 18px;
+            background: var(--lavender);
+            font-size: 14px;
+        }
+
+        .messages.error { background: var(--pink); }
+        .messages.success { background: var(--mint); }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.4fr) minmax(220px, .6fr);
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            min-width: 0;
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            padding: 23px;
+            box-shadow: 0 8px 28px rgba(74, 53, 111, .035);
+            margin-bottom: 20px;
+            scroll-margin-top: 22px;
+        }
+
+        .balance-card {
+            color: white;
+            background: linear-gradient(125deg, #9276cb, #b6a0e4);
+            border: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .balance-card::after {
+            content: "";
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.09);
+            right: -50px;
+            top: -95px;
+            pointer-events: none;
+        }
+
+        .balance-label {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.1px;
+        }
+
+        .balance-amount {
+            font-size: clamp(31px, 4vw, 43px);
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin: 17px 0 9px;
+            overflow-wrap: anywhere;
+        }
+
+        .balance-caption { font-size: 13px; opacity: .9; }
+
+        .balance-chip {
+            display: inline-block;
+            margin-top: 18px;
+            background: rgba(255,255,255,.19);
+            padding: 8px 11px;
+            border-radius: 11px;
+            font-size: 12px;
+        }
+
+        .mini-balance {
+            background: linear-gradient(145deg, #f1eaff, white);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .mini-balance .emoji { font-size: 27px; }
+        .mini-balance h3 { font-size: 15px; margin: 15px 0 7px; }
+        .mini-balance .big-number { font-size: 22px; font-weight: 800; }
+        .muted { color: var(--muted); }
+
+        .mini-balance p {
+            font-size: 12px;
+            margin: 9px 0 0;
+            line-height: 1.6;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 21px;
+            background: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 0;
+        }
+
+        .stat-icon {
+            width: 49px;
+            height: 49px;
+            flex: 0 0 49px;
+            display: grid;
+            place-items: center;
+            border-radius: 16px;
+            font-size: 22px;
+        }
+
+        .mint { background: var(--mint); }
+        .peach { background: var(--peach); }
+        .pink { background: var(--pink); }
+        .lavender { background: var(--lavender); }
+
+        .stat-card p {
+            margin: 0 0 7px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .stat-card h2 {
+            margin: 0;
+            font-size: clamp(20px, 2.3vw, 27px);
+            overflow-wrap: anywhere;
+        }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        .section-heading h2 {
+            margin: 0;
+            font-size: 19px;
+            letter-spacing: -.4px;
+        }
+
+        .section-heading p {
+            color: var(--muted);
+            margin: 7px 0 0;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 7px 10px;
+            background: var(--lavender);
+            color: var(--purple-dark);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .grid-two {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
+        }
+
+        .field { min-width: 0; }
+        .full { grid-column: 1 / -1; }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #655875;
+        }
+
+        input, select {
+            width: 100%;
+            min-width: 0;
+            padding: 12px 13px;
+            border: 1px solid #e6deef;
+            border-radius: 12px;
+            outline: none;
+            color: var(--ink);
+            background: white;
+            transition: border .2s, box-shadow .2s;
+        }
+
+        input:focus, select:focus {
+            border-color: #ad95dc;
+            box-shadow: 0 0 0 3px #eee7ff;
+        }
+
+        .btn {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 7px;
+            padding: 12px 17px;
+            border: 0;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 13px;
+            background: var(--purple);
+            color: white;
+            text-decoration: none;
+            transition: transform .15s, background .15s;
+        }
+
+        .btn:hover {
+            background: var(--purple-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--lavender);
+            color: var(--purple-dark);
+        }
+
+        .btn-secondary:hover { background: #e5d9fb; }
+        .btn-block { width: 100%; }
+
+        .btn-danger {
+            background: #fff0f2;
+            color: #a64d65;
+            padding: 8px 10px;
+        }
+
+        .btn-danger:hover { background: #ffe1e8; }
+
+        .income-total {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: linear-gradient(120deg, #e8f8ee, #f4fff7);
+            padding: 17px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+
+        .income-total p {
+            margin: 0 0 5px;
+            color: #56816a;
+            font-size: 12px;
+        }
+
+        .income-total h3 {
+            margin: 0;
+            font-size: 25px;
+            color: #28774d;
+        }
+
+        .income-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .income-row:last-child { border-bottom: 0; }
+        .income-row strong { font-size: 13px; }
+        .income-row small {
+            display: block;
+            margin-top: 5px;
+            color: var(--muted);
+        }
+
+        .income-row .amount {
+            color: #28774d;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .chart-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+            gap: 20px;
+            align-items: center;
+        }
+
+        .chart-box {
+            position: relative;
+            width: 100%;
+            max-width: 330px;
+            margin: 0 auto;
+            min-height: 230px;
+        }
+
+        .chart-center {
+            pointer-events: none;
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding-top: 2px;
+        }
+
+        .chart-center small { color: var(--muted); font-size: 11px; }
+        .chart-center strong { font-size: 20px; margin-top: 6px; }
+
+        .legend-list { display: grid; gap: 13px; }
+
+        .legend-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 12px;
+        }
+
+        .legend-name {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            min-width: 0;
+        }
+
+        .legend-name span:last-child { overflow-wrap: anywhere; }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            flex: 0 0 10px;
+            border-radius: 4px;
+        }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin: 15px 0 20px;
+        }
+
+        .quick-button {
+            background: #faf7ff;
+            color: var(--purple-dark);
+            border: 1px solid #e7def7;
+            border-radius: 14px;
+            padding: 15px 5px;
+            font-weight: 800;
+            transition: .15s;
+        }
+
+        .quick-button:hover, .quick-button.selected {
+            background: var(--lavender);
+            border-color: #b7a1e0;
+            transform: translateY(-2px);
+        }
+
+        .voice-box {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            background: linear-gradient(120deg, #f2eaff, #fff2f5);
+            padding: 15px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+
+        .mic-button {
+            flex: 0 0 47px;
+            width: 47px;
+            height: 47px;
+            border: 0;
+            border-radius: 15px;
+            background: var(--purple);
+            color: white;
+            font-size: 21px;
+        }
+
+        .mic-button.listening {
+            background: #d55c83;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            50% { box-shadow: 0 0 0 7px #f7c6d8; }
+        }
+
+        .voice-copy strong { display: block; font-size: 13px; }
+
+        .voice-copy p {
+            margin: 5px 0 0;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .voice-status {
+            color: var(--purple-dark);
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .suggestion-list { display: grid; gap: 12px; }
+
+        .suggestion {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 15px;
+            background: #fcfaff;
+            border: 1px solid #f0e9fa;
+            border-radius: 15px;
+        }
+
+        .suggestion-icon {
+            flex: 0 0 36px;
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            background: var(--lavender);
+        }
+
+        .suggestion p {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .history-tools {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .history-tools input { max-width: 320px; }
+
+        .history-count {
+            background: var(--mint);
+            color: #317a55;
+            border-radius: 20px;
+            padding: 8px 11px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 580px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 14px 10px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        th {
+            color: #94889f;
+            font-size: 10px;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+        }
+
+        td { font-size: 12px; }
+        .category-label { font-weight: 700; }
+
+        .category-note {
+            display: block;
+            margin-top: 5px;
+            color: var(--muted);
+        }
+
+        .expense-text { color: #b7654e; font-weight: 800; }
+        .income-text { color: #28774d; font-weight: 800; }
+
+        .empty {
+            text-align: center;
+            color: var(--muted);
+            padding: 30px 12px;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .footer {
+            text-align: center;
+            color: #a096ac;
+            font-size: 11px;
+            padding: 12px 0;
+        }
+
+        @media (min-width: 1500px) {
+            .main { margin-right: auto; }
+        }
+
+        @media (max-width: 1000px) {
+            .sidebar { width: 215px; }
+            .main { margin-left: 215px; }
+            .hero { grid-template-columns: 1fr; }
+            .chart-layout { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 700px) {
+            .sidebar {
+                position: relative;
+                inset: auto;
+                width: 100%;
+                height: auto;
+                max-height: none;
+                overflow: visible;
+                padding: 15px;
+                border-right: 0;
+                border-bottom: 1px solid var(--line);
+            }
+
+            .brand { padding: 0 3px; }
+            .tagline { margin: 5px 0 15px; padding: 0 3px; }
+            .nav-label { margin-top: 8px; }
+
+            .nav {
+                display: flex;
+                overflow-x: auto;
+                padding-bottom: 5px;
+            }
+
+            .nav a { white-space: nowrap; padding: 10px; }
+            .nav-icon { width: auto; }
+            .sidebar-bottom { margin-top: 12px; padding-top: 0; }
+            .sidebar-note { display: none; }
+            .logout-form { margin-top: 8px; }
+            .logout-button { justify-content: center; }
+
+            .main {
+                margin-left: 0;
+                padding: 22px 14px 30px;
+            }
+
+            .topbar { margin-bottom: 20px; }
+            .profile { width: 100%; }
+            .stats { gap: 10px; }
+            .stat-card { padding: 15px 12px; gap: 10px; }
+
+            .stat-icon {
+                width: 38px;
+                height: 38px;
+                flex-basis: 38px;
+                font-size: 18px;
+            }
+
+            .card { padding: 18px; border-radius: 19px; }
+            .grid-two { grid-template-columns: 1fr; }
+            .full { grid-column: auto; }
+            .quick-grid { gap: 6px; }
+            .quick-button { font-size: 12px; padding: 13px 2px; }
+            .income-row { flex-wrap: wrap; }
+        }
+
+        @media (max-width: 390px) {
+            .stats { grid-template-columns: 1fr; }
+            .quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+    </style>
+</head>
+
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">🌷</div>
+            <h1>PennyPilot</h1>
+        </div>
+
+        <p class="tagline">Your money, your way.</p>
+
+        <p class="nav-label">WORKSPACE</p>
+        <nav class="nav" aria-label="Dashboard navigation">
+            <a href="#overview" class="active"><span class="nav-icon">⌂</span>Dashboard</a>
+            <a href="#monthly-income"><span class="nav-icon">＋</span>Monthly income</a>
+            <a href="#expense-chart"><span class="nav-icon">◉</span>Analytics</a>
+            <a href="#add-expense"><span class="nav-icon">↗</span>Add expense</a>
+            <a href="#history"><span class="nav-icon">▤</span>Transactions</a>
+            <a href="#insights"><span class="nav-icon">✧</span>Smart insights</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="sidebar-note">
+                <strong>🌱 Little steps add up</strong>
+                <p>Small money habits today can help you feel more confident tomorrow.</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('logout') }}" class="logout-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="logout-button" type="submit">↪ Sign out</button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar" id="overview">
+            <div>
+                <p class="eyebrow">YOUR PERSONAL FINANCE SPACE</p>
+                <h1 class="page-title">Your money at a glance ✨</h1>
+                <p class="welcome">A little clarity for your financial journey.</p>
+
+                <div class="top-actions">
+                    <a href="#history" class="btn btn-secondary">🧾 View transaction history</a>
+                    <a href="#add-expense" class="btn">＋ Add expense</a>
+                </div>
+            </div>
+
+            <div class="profile">
+                <div class="avatar">{{ user.username[:1]|upper }}</div>
+                <div>
+                    <strong>Hi, {{ user.username }}! 💜</strong>
+                    <small>Welcome back to PennyPilot</small>
+                </div>
+            </div>
+        </header>
+
+        {% for category, message in get_flashed_messages(with_categories=true) %}
+            <div class="messages {{ category }}">{{ message }}</div>
+        {% endfor %}
+
+        <section class="hero">
+            <div class="card balance-card">
+                <div class="balance-label">TOTAL BALANCE</div>
+                <div class="balance-amount">₹{{ "%.2f"|format(balance) }}</div>
+                <div class="balance-caption">Your recorded income minus recorded expenses</div>
+                <span class="balance-chip">💜 Your money, your way.</span>
+            </div>
+
+            <div class="card mini-balance">
+                <span class="emoji">🌱</span>
+                <h3>Your next little money goal</h3>
+                <div class="big-number">One step at a time</div>
+                <p>Track your spending, find patterns, and build habits that work for you.</p>
+            </div>
+        </section>
+
+        <section class="stats">
+            <div class="stat-card">
+                <div class="stat-icon mint">💚</div>
+                <div>
+                    <p>Total income · all records</p>
+                    <h2>₹{{ "%.2f"|format(income_total) }}</h2>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon peach">🍑</div>
+                <div>
+                    <p>Total expenses · all records</p>
+                    <h2>₹{{ "%.2f"|format(expense_total) }}</h2>
+                </div>
+            </div>
+        </section>
+
+        <!-- MONTHLY INCOME -->
+        <section class="card" id="monthly-income">
+            <div class="section-heading">
+                <div>
+                    <h2>💜 Monthly income</h2>
+                    <p>Choose a month and year, then save each income source separately.</p>
+                </div>
+                <span class="pill">{{ selected_month_name }} {{ selected_year }}</span>
+            </div>
+
+            <form method="GET" action="{{ url_for('dashboard') }}" class="grid-two">
+                <div class="field">
+                    <label for="view-month">Choose month</label>
+                    <select name="month" id="view-month" required>
+                        {% for m in range(1, 13) %}
+                            <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>
+                                {{ ["", "January", "February", "March", "April", "May",
+                                "June", "July", "August", "September", "October",
+                                "November", "December"][m] }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="view-year">Choose year</label>
+                    <select name="year" id="view-year" required>
+                        {% for y in range(current_year - 5, current_year + 6) %}
+                            <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>
+                                {{ y }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="full">
+                    <button type="submit" class="btn btn-secondary">View selected month →</button>
+                </div>
+            </form>
+
+            <div class="income-total" style="margin-top:20px;">
+                <div>
+                    <p>INCOME SAVED FOR {{ selected_month_name|upper }} {{ selected_year }}</p>
+                    <h3>₹{{ "%.2f"|format(selected_month_income_total) }}</h3>
+                </div>
+                <span style="font-size:27px;">💰</span>
+            </div>
+
+            <form method="POST" action="{{ url_for('add_income') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="month" value="{{ selected_month }}">
+                <input type="hidden" name="year" value="{{ selected_year }}">
+
+                <div class="grid-two">
+                    <div class="field">
+                        <label for="income-source">Income source</label>
+                        <select id="income-source" name="source" required>
+                            <option value="Salary">💼 Salary</option>
+                            <option value="Pocket Money">💵 Pocket Money</option>
+                            <option value="Freelance">💻 Freelance</option>
+                            <option value="Other Income">✨ Other Income</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="income-amount">Income amount (₹)</label>
+                        <input id="income-amount" name="amount" type="number"
+                               min="0.01" max="9999999999.99" step="0.01"
+                               placeholder="e.g. 25000" required>
+                    </div>
+
+                    <div class="field full">
+                        <label for="income-note">Note (optional)</label>
+                        <input id="income-note" name="note" type="text"
+                               maxlength="200" placeholder="e.g. October salary">
+                    </div>
+
+                    <div class="full">
+                        <button class="btn btn-block" type="submit">＋ Save monthly income</button>
+                    </div>
+                </div>
+            </form>
+
+            <h3 style="font-size:15px; margin:25px 0 5px;">Saved income records</h3>
+
+            {% if selected_month_incomes %}
+                {% for item in selected_month_incomes %}
+                    <div class="income-row">
+                        <div>
+                            <strong>{{ item.source }}</strong>
+                            <small>{{ item.note or selected_month_name ~ " " ~ selected_year }}</small>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span class="amount">₹{{ "%.2f"|format(item.amount) }}</span>
+                            <form method="POST" action="{{ url_for('delete_income', income_id=item.id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-danger"
+                                        onclick="return confirm('Delete this income record?')">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty">🌱 No income saved for this month yet. Add your first record above.</div>
+            {% endif %}
+        </section>
+
+        <!-- EXPENSE CHART -->
+        <section class="card" id="expense-chart">
+            <div class="section-heading">
+                <div>
+                    <h2>🎨 Expense breakdown</h2>
+                    <p>See how your expenses are divided for {{ selected_month_name }} {{ selected_year }}.</p>
+                </div>
+                <span class="pill">Monthly analytics</span>
+            </div>
+
+            <div class="chart-layout">
+                <div class="chart-box">
+                    <canvas id="expenseDonut" aria-label="Expense categories donut chart"></canvas>
+                    <div class="chart-center" id="chart-center">
+                        <small>MONTHLY EXPENSES</small>
+                        <strong>₹{{ "%.2f"|format(monthly_expense_total) }}</strong>
+                    </div>
+                </div>
+                <div id="chart-legend" class="legend-list"></div>
+            </div>
+
+            <div id="chart-empty" class="empty" hidden>
+                🌷 No expenses recorded for this month yet. Add an expense to see your colourful chart.
+            </div>
+        </section>
+
+        <!-- ADD EXPENSE -->
+        <section class="card" id="add-expense">
+            <div class="section-heading">
+                <div>
+                    <h2>✨ Add a transaction</h2>
+                    <p>Record an expense manually, use Quick Cash, or try voice entry.</p>
+                </div>
+                <span class="pill">Expenses only</span>
+            </div>
+
+            <div class="voice-box">
+                <button type="button" id="voice-button" class="mic-button"
+                        aria-label="Start voice entry">🎙️</button>
+                <div class="voice-copy">
+                    <strong>Speak your expense</strong>
+                    <p>Try saying “I spent 100 rupees on food”. Voice recognition depends on your browser and language settings.</p>
+                    <div class="voice-status" id="voice-status" aria-live="polite">Ready when you are.</div>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ url_for('add_transaction') }}" id="expense-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="field">
+                    <label>Quick Cash · choose an amount</label>
+                    <div class="quick-grid">
+                        <button type="button" class="quick-button" data-amount="50">₹50</button>
+                        <button type="button" class="quick-button" data-amount="100">₹100</button>
+                        <button type="button" class="quick-button" data-amount="200">₹200</button>
+                        <button type="button" class="quick-button" data-amount="500">₹500</button>
+                    </div>
+                </div>
+
+                <div class="grid-two">
+                    <div class="field">
+                        <label for="expense-amount">Amount (₹)</label>
+                        <input id="expense-amount" name="amount" type="number"
+                               min="0.01" max="9999999999.99" step="0.01"
+                               placeholder="Enter amount" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="expense-category">Category</label>
+                        <select id="expense-category" name="category" required>
+                            <option value="Food">🍜 Food</option>
+                            <option value="Transport">🚌 Transport</option>
+                            <option value="Shopping">🛍️ Shopping</option>
+                            <option value="Bills">🧾 Bills</option>
+                            <option value="Education">📚 Education</option>
+                            <option value="Entertainment">🎬 Entertainment</option>
+                            <option value="Health">🌿 Health</option>
+                            <option value="Subscriptions">🔁 Subscriptions</option>
+                            <option value="Other">✨ Other</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="expense-date">Date</label>
+                        <input id="expense-date" name="date" type="date" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="expense-note">Note (optional)</label>
+                        <input id="expense-note" name="note" type="text"
+                               maxlength="200" placeholder="e.g. Lunch with friends">
+                    </div>
+
+                    <div class="full">
+                        <button type="submit" class="btn btn-block">＋ Save expense</button>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <!-- INSIGHTS -->
+        <section class="card" id="insights">
+            <div class="section-heading">
+                <div>
+                    <h2>🌷 Your money insights</h2>
+                    <p>Friendly suggestions based on your recorded income and expenses.</p>
+                </div>
+                <span class="pill">Personalised</span>
+            </div>
+
+            <div class="suggestion-list">
+                {% for suggestion in suggestions %}
+                    <div class="suggestion">
+                        <div class="suggestion-icon">✧</div>
+                        <p>{{ suggestion }}</p>
+                    </div>
+                {% else %}
+                    <div class="empty">🌱 Add some transactions to start seeing your spending insights.</div>
+                {% endfor %}
+            </div>
+
+            <p class="muted" style="font-size:11px; line-height:1.6; margin-top:16px;">
+                These are basic spending observations, not professional financial advice.
+                Suggestions improve as you record more information.
+            </p>
+        </section>
+
+        <!-- TRANSACTION HISTORY -->
+        <section class="card" id="history">
+            <div class="section-heading">
+                <div>
+                    <h2>🧸 Transaction history</h2>
+                    <p>Your saved records, newest first. Use search to find a particular transaction.</p>
+                </div>
+                <a class="btn btn-secondary" href="{{ url_for('export_csv') }}">↓ Export CSV</a>
+            </div>
+
+            <div class="history-tools">
+                <input type="search" id="history-search"
+                       placeholder="Search category or note…"
+                       aria-label="Search transactions">
+                <span class="history-count">
+                    {{ transactions|length }} record(s)
+                </span>
+            </div>
+
+            {% if transactions %}
+                <div class="table-wrap">
+                    <table id="history-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Details</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in transactions %}
+                            <tr class="transaction-row">
+                                <td>{{ item.transaction_date.strftime("%d %b %Y") }}</td>
+                                <td>
+                                    <span class="category-label">{{ item.category }}</span>
+                                    {% if item.note %}
+                                        <span class="category-note">{{ item.note }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.kind|title }}</td>
+                                <td class="{{ 'income-text' if item.kind == 'income' else 'expense-text' }}">
+                                    {{ '+' if item.kind == 'income' else '−' }}₹{{ "%.2f"|format(item.amount) }}
+                                </td>
+                                <td>
+                                    {% if item.kind == "expense" %}
+                                        <form method="POST"
+                                              action="{{ url_for('delete_transaction', transaction_id=item.id) }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="btn btn-danger"
+                                                    onclick="return confirm('Delete this expense?')">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <span class="muted">Income record</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <div id="no-search-results" class="empty" hidden>
+                        No matching transactions found.
+                    </div>
+                </div>
+            {% else %}
+                <div class="empty">
+                    🌱 Your transaction history is empty. If you previously saved expenses,
+                    check that the dashboard is reading the same database.
+                </div>
+            {% endif %}
+
+            <div style="margin-top:18px;">
+                <a href="#overview" class="btn btn-secondary">↑ Back to top</a>
+            </div>
+        </section>
+
+        <footer class="footer">
+            Made with 💜 for your financial journey · PennyPilot · Your money, your way.
+        </footer>
+    </main>
+</div>
+
+<script>
+    // Set today's local date without UTC date shifting.
+    const dateInput = document.getElementById("expense-date");
+
+    if (dateInput && !dateInput.value) {
+        const today = new Date();
+        dateInput.value = [
+            today.getFullYear(),
+            String(today.getMonth() + 1).padStart(2, "0"),
+            String(today.getDate()).padStart(2, "0")
+        ].join("-");
+    }
+
+    // Quick Cash.
+    const amountInput = document.getElementById("expense-amount");
+    const quickButtons = document.querySelectorAll(".quick-button");
+
+    quickButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            amountInput.value = button.dataset.amount;
+            quickButtons.forEach(item => item.classList.remove("selected"));
+            button.classList.add("selected");
+            amountInput.focus();
+        });
+    });
+
+    amountInput.addEventListener("input", () => {
+        quickButtons.forEach(item => item.classList.remove("selected"));
+    });
+
+    // Expense donut chart.
+    const chartLabels = {{ chart_labels|tojson }};
+    const chartValues = {{ chart_values|tojson }};
+    const chartColors = [
+        "#A88BE0", "#F3AD93", "#85CFA7", "#E9A8C4",
+        "#80BFE0", "#E8D17E", "#B7A9E8", "#F2B6A7",
+        "#9BC9C0", "#C5A0D9"
+    ];
+
+    const chartCanvas = document.getElementById("expenseDonut");
+    const chartEmpty = document.getElementById("chart-empty");
+    const chartLegend = document.getElementById("chart-legend");
+    const chartCenter = document.getElementById("chart-center");
+
+    if (
+        !chartLabels.length ||
+        !chartValues.some(value => Number(value) > 0) ||
+        typeof Chart === "undefined"
+    ) {
+        chartCanvas.style.display = "none";
+        chartCenter.style.display = "none";
+        chartEmpty.hidden = false;
+        chartLegend.innerHTML = "";
+    } else {
+        new Chart(chartCanvas, {
+            type: "doughnut",
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    data: chartValues,
+                    backgroundColor: chartLabels.map((_, index) =>
+                        chartColors[index % chartColors.length]
+                    ),
+                    borderColor: "#ffffff",
+                    borderWidth: 4,
+                    hoverOffset: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                cutout: "73%",
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: context =>
+                                " ₹" + Number(context.raw).toLocaleString("en-IN", {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                })
+                        }
+                    }
+                }
+            }
+        });
+
+        chartLegend.innerHTML = chartLabels.map((label, index) => {
+            const value = Number(chartValues[index]).toLocaleString("en-IN", {
+                style: "currency",
+                currency: "INR",
+                maximumFractionDigits: 2
+            });
+
+            return `
+                <div class="legend-row">
+                    <div class="legend-name">
+                        <span class="legend-dot"
+                              style="background:${chartColors[index % chartColors.length]}"></span>
+                        <span>${escapeHtml(label)}</span>
+                    </div>
+                    <strong>${value}</strong>
+                </div>
+            `;
+        }).join("");
+    }
+
+    function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, char => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        }[char]));
+    }
+
+    // Voice expense entry.
+    const voiceButton = document.getElementById("voice-button");
+    const voiceStatus = document.getElementById("voice-status");
+    const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+        voiceButton.addEventListener("click", () => {
+            voiceStatus.textContent =
+                "Voice recognition is unavailable in this browser. You can type your expense instead.";
+        });
+    } else {
+        const recognition = new SpeechRecognition();
+        recognition.lang = "en-IN";
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        voiceButton.addEventListener("click", () => {
+            try {
+                voiceStatus.textContent = "Listening… say your expense.";
+                voiceButton.classList.add("listening");
+                recognition.start();
+            } catch (error) {
+                voiceStatus.textContent =
+                    "Voice entry is already active. Please finish speaking first.";
+            }
+        });
+
+        recognition.onresult = event => {
+            const spoken = event.results[0][0].transcript;
+            voiceStatus.textContent = "Heard: “" + spoken + "”";
+
+            const amountMatch = spoken.replace(/,/g, "").match(
+                /(?:₹|rs\.?|rupees?\s*)?\s*(\d+(?:\.\d{1,2})?)/i
+            );
+
+            if (amountMatch) {
+                amountInput.value = amountMatch[1];
+                quickButtons.forEach(item => item.classList.remove("selected"));
+            }
+
+            const lower = spoken.toLowerCase();
+            const categoryInput = document.getElementById("expense-category");
+
+            const categoryRules = [
+                ["Food", ["food", "lunch", "dinner", "breakfast", "snack", "coffee", "restaurant"]],
+                ["Transport", ["transport", "bus", "taxi", "cab", "petrol", "fuel", "auto"]],
+                ["Shopping", ["shopping", "clothes", "shirt", "shoes"]],
+                ["Bills", ["bill", "electricity", "water bill", "internet bill"]],
+                ["Education", ["education", "book", "college", "course"]],
+                ["Entertainment", ["movie", "cinema", "game", "entertainment"]],
+                ["Health", ["health", "medicine", "doctor", "pharmacy"]],
+                ["Subscriptions", ["subscription", "netflix", "spotify", "membership"]]
+            ];
+
+            for (const [category, keywords] of categoryRules) {
+                if (keywords.some(keyword => lower.includes(keyword))) {
+                    categoryInput.value = category;
+                    break;
+                }
+            }
+
+            document.getElementById("expense-note").value = spoken;
+        };
+
+        recognition.onerror = event => {
+            voiceStatus.textContent =
+                event.error === "not-allowed"
+                    ? "Microphone permission was denied. Allow microphone access in your browser settings."
+                    : "Voice entry couldn't complete (" + event.error + "). You can type instead.";
+        };
+
+        recognition.onend = () => {
+            voiceButton.classList.remove("listening");
+        };
+    }
+
+    // Search transaction history.
+    const searchInput = document.getElementById("history-search");
+    const noResults = document.getElementById("no-search-results");
+
+    if (searchInput) {
+        searchInput.addEventListener("input", () => {
+            const query = searchInput.value.toLowerCase().trim();
+            const rows = Array.from(document.querySelectorAll(".transaction-row"));
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const matches = row.textContent.toLowerCase().includes(query);
+                row.style.display = matches ? "" : "none";
+                if (matches) visibleCount++;
+            });
+
+            if (noResults) {
+                noResults.hidden = visibleCount !== 0;
+            }
+        });
+    }
+
+    // Highlight the selected sidebar link.
+    document.querySelectorAll(".nav a").forEach(link => {
+        link.addEventListener("click", () => {
+            document.querySelectorAll(".nav a").forEach(item => {
+                item.classList.remove("active");
+            });
+            link.classList.add("active");
+        });
+    });
+</script>
+</body>
+</html>
